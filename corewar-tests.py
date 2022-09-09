@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import os
-from subprocess import run, Popen, PIPE
+from subprocess import run, PIPE
 
-def check_basic_stuff(dir: str):
-    files = [f for f in os.listdir(dir) if os.path.isfile(f)]
+def check_basic_stuff(dir):
+    files = [f for f in os.listdir(dir)]
     if "Makefile" not in files:
-        print("No Makefile")
+        print("No Makefile found")
     if "author" not in files:
-        print("No Makefile")
+        print("No author file found")
 
 def is_corewar_root_dir(dir: str):
     '''Checks if dir has a Makefile that mentions Corewar. If it does, it is interpreted
@@ -22,10 +22,15 @@ def is_corewar_root_dir(dir: str):
     return False
 
 def find_project_dir():
-    '''Checks if cwd, cwd's parent directory or any of cwd's sibling directories are a corewar directory.'''
-    dirs = [d for d in os.listdir(os.getcwd()) if os.path.isdir(d)]
-    dirs.append(os.getcwd())
-    dirs.append(os.path.abspath(os.pardir))
+    '''Looks for a Corewar directory. The script's sibling and parent directories are searched,
+    as well as the script directory itself.'''
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    parent_dir = os.path.dirname(script_dir)
+    print('script dir', script_dir)
+    print('parent dir', parent_dir)
+    dirs = [f.path for f in os.scandir(parent_dir) if f.is_dir()]
+    dirs.append(script_dir)
+    dirs.append(parent_dir)
 
     print("Checking if any of the following directories are a Corewar-directory:\n", dirs)
     for dir in dirs:
@@ -35,7 +40,10 @@ def find_project_dir():
 
 def main():
     project_dir = find_project_dir()
+    if project_dir is None:
+        print("Error: Couldn't locate Corewar directory")
     print("Corewar directory found:", project_dir)
+    check_basic_stuff(project_dir)
 
 if __name__ == '__main__':
     main()
