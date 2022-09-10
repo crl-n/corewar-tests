@@ -3,6 +3,9 @@
 import os
 from subprocess import run, PIPE
 
+def red(str):
+    return "\033[31m" + str + "\033[0m"
+
 def check_basic_stuff(dir):
     files = [f for f in os.listdir(dir)]
     if "Makefile" not in files:
@@ -41,7 +44,7 @@ def find_project_dir():
 def main():
     project_dir = find_project_dir()
     if project_dir is None:
-        print("Error: Couldn't locate Corewar directory")
+        print(red("Error: Couldn't locate Corewar directory"))
     print("Corewar directory found:", project_dir)
     check_basic_stuff(project_dir)
 
