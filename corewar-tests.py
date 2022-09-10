@@ -45,6 +45,7 @@ def main():
     project_dir = find_project_dir()
     if project_dir is None:
         print(red("Error: Couldn't locate Corewar directory"))
+        return
     print("Corewar directory found:", project_dir)
     check_basic_stuff(project_dir)
 
