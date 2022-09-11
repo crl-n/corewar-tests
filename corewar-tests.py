@@ -2,6 +2,10 @@
 
 import os
 from subprocess import run, PIPE
+from functools import reduce
+
+def magenta(str):
+    return "\033[35m" + str + "\033[0m"
 
 def red(str):
     return "\033[31m" + str + "\033[0m"
@@ -52,13 +56,14 @@ def find_project_dir():
     dirs.append(script_dir)
     dirs.append(parent_dir)
 
-    print("Checking if any of the following directories are a Corewar-directory:\n", dirs)
+    print("Checking if any of the following directories are a Corewar-directory:\n" + reduce(lambda x, y: x + '\n' + y, dirs))
     for dir in dirs:
         if is_corewar_root_dir(dir):
             return dir
     return None
 
 def main():
+    print(magenta("█▀▀ █▀█ █▀█ █▀▀ █░█░█ ▄▀█ █▀█   ▀█▀ █▀▀ █▀ ▀█▀ █▀\n█▄▄ █▄█ █▀▄ ██▄ ▀▄▀▄▀ █▀█ █▀▄   ░█░ ██▄ ▄█ ░█░ ▄█"))
     project_dir = find_project_dir()
     if project_dir is None:
         print(red("Error: Couldn't locate Corewar directory"))
