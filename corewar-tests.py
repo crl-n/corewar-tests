@@ -2,6 +2,7 @@
 
 import os
 import sys
+from tempfile import NamedTemporaryFile
 from subprocess import run, PIPE, DEVNULL
 from functools import reduce
 
@@ -58,6 +59,7 @@ def find_project_dir(script_dir):
 
 def check_basic_stuff(dir):
     '''Checks Makefile, author-file and norm.'''
+    print(magenta("\nBasic Stuff"))
     files = [f for f in os.listdir(dir)]
 
     if "Makefile" not in files:
@@ -77,19 +79,33 @@ def check_basic_stuff(dir):
     else:
         print(green("Norm OK"))
 
-def check_assembler():
-    pass
+def check_assembler(resources_dir, project_dir):
+    print(magenta("\nAssembler tests"))
+    project_asm = project_dir + "/asm"
+    official_asm = resources_dir + "/asm"
+
+    for f in [f for f in os.listdir(resources_dir + "/champs") if f.endswith(".s")]:
+        print(f)
+        with NamedTemporaryFile() as temp_a, NamedTemporaryFile() as temp_b:
+            result_a = run([project_asm, f], stdout = PIPE)
+            result_b = run([official_asm, f], stdout = PIPE)
+            temp_a.write(result_a.stdout)
+            temp_b.write(result_b.stdout)
+            diff_result = run(["diff", "--report-identical-files", str(temp_a.name), str(temp_b.name)])
 
 def check_virtual_machine():
+    print(magenta("\nVirtual machine tests"))
+    print("No tests implemented yet.")
     pass
 
 def main():
-    print(magenta("█▀▀ █▀█ █▀█ █▀▀ █░█░█ ▄▀█ █▀█   ▀█▀ █▀▀ █▀ ▀█▀ █▀\n█▄▄ █▄█ █▀▄ ██▄ ▀▄▀▄▀ █▀█ █▀▄   ░█░ ██▄ ▄█ ░█░ ▄█"))
+    print(magenta("█▀▀ █▀█ █▀█ █▀▀ █░█░█ ▄▀█ █▀█   ▀█▀ █▀▀ █▀ ▀█▀ █▀\n█▄▄ █▄█ █▀▄ ██▄ ▀▄▀▄▀ █▀█ █▀▄   ░█░ ██▄ ▄█ ░█░ ▄█\n"))
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
 
     if "resources" not in os.listdir(script_dir):
         retrieve_resources()
+    resources_dir = script_dir + "/resources"
             
     project_dir = find_project_dir(script_dir)
     if project_dir is None:
@@ -98,7 +114,7 @@ def main():
 
     print(green("Corewar directory found:"), project_dir)
     check_basic_stuff(project_dir)
-    check_assembler()
+    check_assembler(resources_dir, project_dir)
     check_virtual_machine()
 
 if __name__ == '__main__':
