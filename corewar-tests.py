@@ -60,10 +60,13 @@ def main():
         retrieve_resources()
     resources_dir = script_dir + "/resources"
             
-    project_dir = find_project_dir(script_dir)
-    if project_dir is None:
-        print(red("Error: Couldn't locate Corewar directory"))
-        return
+    if len(sys.argv) == 2:
+        project_dir = sys.argv[1]
+    else:
+        project_dir = find_project_dir(script_dir)
+        if project_dir is None:
+            print(red("Error: Couldn't locate Corewar directory"))
+            return
 
     print(green("Corewar directory found:"), project_dir)
     check_basic_stuff(project_dir)
