@@ -2,19 +2,12 @@
 
 import os
 import sys
-import time
-from tempfile import NamedTemporaryFile
+from library import *
+from check_basic import check_basic_stuff
+from check_asm import check_assembler
+from check_vm import check_virtual_machine
 from subprocess import run, PIPE, DEVNULL
 from functools import reduce
-
-def magenta(str):
-    return "\033[35m" + str + "\033[0m"
-
-def red(str):
-    return "\033[31m" + str + "\033[0m"
-
-def green(str):
-    return "\033[32m" + str + "\033[0m"
 
 def retrieve_resources():
     if input(red("The official 42 Corewar resources could not be found.") + " Would you like to download them from intra.42.fr? (yes/no) ") in ['y', 'yes', 'Y' , 'Yes']:
@@ -57,61 +50,6 @@ def find_project_dir(script_dir):
         if is_corewar_root_dir(dir):
             return dir
     return None
-
-def check_basic_stuff(dir):
-    '''Checks Makefile, author-file and norm.'''
-    print(magenta("\nBasic Stuff"))
-    files = [f for f in os.listdir(dir)]
-
-    if "Makefile" not in files:
-        print(red("No Makefile found"))
-    else:
-        print(green("Makefile found"))
-
-    if "author" not in files:
-        print(red("No author file found"))
-    else:
-        author_contents = run(["cat", dir + "/author"], stdout = PIPE)
-        print(green("Author file found:"), str(author_contents.stdout, 'utf-8').replace('\n', '\\n'))
-
-    norm_result = run(["norminette"], stdout = PIPE)
-    if norm_result.returncode != 1:
-        print(red("Norminette found norm errors!"))
-    else:
-        print(green("Norm OK"))
-
-def check_assembler(resources_dir, project_dir):
-    print(magenta("\nAssembler tests"))
-    project_asm = project_dir + "/asm"
-    official_asm = resources_dir + "/asm"
-
-    if not os.path.exists(project_asm):
-        print(red("Error: Couldn't find your assembler."))
-        sys.exit()
-    if not os.path.exists(official_asm):
-        print(red("Error: Couldn't find the official assembler."))
-        sys.exit()
-
-    f = ""
-    for f in [resources_dir + '/champs/' + f for f in os.listdir(resources_dir + "/champs") if f.endswith(".s")]:
-        print("Comparing " + f, end = "\r")
-        with NamedTemporaryFile() as temp_a, NamedTemporaryFile() as temp_b:
-            result_a = run([project_asm, f], stdout = PIPE, stderr = PIPE)
-            result_b = run([official_asm, f], stdout = PIPE, stderr = PIPE)
-            temp_a.write(result_a.stdout)
-            temp_b.write(result_b.stdout)
-            # temp_a.seek(0)
-            # temp_b.seek(0)
-            # print(temp_a.name, temp_b.name)
-            diff_result = run(["diff", "--report-identical-files", str(temp_a.name), str(temp_b.name)], stdout = PIPE)
-            time.sleep(0.03)
-            print("\033[2K", end = "")
-    print("Comparing " + f)
-
-def check_virtual_machine():
-    print(magenta("\nVirtual machine tests"))
-    print("No tests implemented yet.")
-    pass
 
 def main():
     print(magenta("█▀▀ █▀█ █▀█ █▀▀ █░█░█ ▄▀█ █▀█   ▀█▀ █▀▀ █▀ ▀█▀ █▀\n█▄▄ █▄█ █▀▄ ██▄ ▀▄▀▄▀ █▀█ █▀▄   ░█░ ██▄ ▄█ ░█░ ▄█\n"))
