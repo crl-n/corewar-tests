@@ -1,9 +1,16 @@
 import os
 import sys
-import time
+import re
 from tempfile import NamedTemporaryFile
 from library import *
-from subprocess import run, PIPE
+from subprocess import CompletedProcess, run, PIPE
+
+class AsmResult:
+    def __init__(self, asm: str, f: str):
+        self.result: CompletedProcess = run([asm, f], stdout = PIPE, stderr = PIPE, universal_newlines = True)
+        self.outfile = None
+        if self.result.returncode == 0:
+            self.outfile = re.findall(r'/[a-zA-Z0-9\.\/\-\_]*', self.result.stdout)[0]
 
 def check_assembler(resources_dir, project_dir):
     print(magenta("\nAssembler tests"))
@@ -17,19 +24,12 @@ def check_assembler(resources_dir, project_dir):
         print(red("Error: Couldn't find the official assembler."))
         sys.exit()
 
-    f = ""
     for f in [resources_dir + '/champs/' + f for f in os.listdir(resources_dir + "/champs") if f.endswith(".s")]:
-        print("Comparing " + f, end = "\r")
+        print("Comparing " + f)
         with NamedTemporaryFile() as temp_a, NamedTemporaryFile() as temp_b:
-            result_a = run([project_asm, f], stdout = PIPE, stderr = PIPE)
-            result_b = run([official_asm, f], stdout = PIPE, stderr = PIPE)
-            temp_a.write(result_a.stdout)
-            temp_b.write(result_b.stdout)
-            # temp_a.seek(0)
-            # temp_b.seek(0)
-            # print(temp_a.name, temp_b.name)
-            diff_result = run(["diff", "--report-identical-files", str(temp_a.name), str(temp_b.name)], stdout = PIPE)
-            time.sleep(0.03)
-            print("\033[2K", end = "")
-    print("Comparing " + f)
-
+            project_result = AsmResult(project_asm, f)
+            official_result = AsmResult(official_asm, f)
+            print(project_result.outfile)
+            print(official_result.outfile)
+            # diff_result = run(["diff", "--report-identical-files", str(temp_a.name), str(temp_b.name)], stdout = PIPE)
+            # print(diff_result.stdout)

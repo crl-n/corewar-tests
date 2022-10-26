@@ -6,3 +6,5 @@ def red(str):
 
 def green(str):
     return "\033[32m" + str + "\033[0m"
+
+path_regex = r"(\/.*\.[\w:]+)"
